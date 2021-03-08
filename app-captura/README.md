@@ -1,4 +1,4 @@
-# app-captura
+# backend-app
 
 ## Project setup
 ```
