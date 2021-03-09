@@ -6,47 +6,72 @@
                  <router-link to="/"><p>Regresar</p></router-link>
             </div>
            <div class="menu-captura-informacion-vertientes">
-                <p @click="vertienteA">Vertiente A</p>
-                <p @click="vertienteB">Vertiente B</p>
-                <p @click="vertienteC">Vertiente C</p>
+                <p @click="vertienteA" :class="activoVA">Vertiente A</p>
+                <p @click="vertienteB" :class="activoVB">Vertiente B</p>
+                <p @click="vertienteC" :class="activoVC">Vertiente C</p>
                 <p @click="general">General</p>
                 <p @click="resumen">Resumen</p>
            </div>
         </div>
-        <RecursoFinanciero :sectionTitle="infoVertiente"></RecursoFinanciero>
+        <RecursoFinanciero  :sectionTitle="infoVertiente" v-if="showVertientes"></RecursoFinanciero>
+        <RecursoFinanciero  :sectionTitle="infoVertiente" v-if="false"></RecursoFinanciero>
+        <RecursoFinanciero  :sectionTitle="infoVertiente" v-if="false"></RecursoFinanciero>
+        <General :titulo="tituloGeneral" v-if="!showVertientes"></General>
     </div>
 </template>
 
 <script>
 import RecursoFinanciero from '@/components/RecursoFinanciero.vue'
+import General from '@/components/General.vue'
 export default {
     components: {
-        RecursoFinanciero
+        RecursoFinanciero,
+        General
     },
     data() {
         return {
             infoVertiente:{
                 mensaje: 'Recursos Financieros Vertiente',
                 vertiente: 'A'
-            }
+            },
+            activoVA: '',
+            activoVB: '',
+            activoVC: '',
+            showVertientes: true,
+            tituloGeneral: 'Esto es información General'
         }
+    },
+    created(){
+        this.vertienteA()
     },
     methods:{
         vertienteA(){
             this.infoVertiente.mensaje = 'Recursos Financieros Vertiente'
             this.infoVertiente.vertiente = 'A'
+            this.activoVA = 'activar'
+            this.activoVB = ''
+            this.activoVC = ''
+            this.showVertientes = true
         },
         vertienteB(){
             this.infoVertiente.vertiente = 'B'
             this.infoVertiente.mensaje = 'Recursos Financieros Vertiente'
+            this.activoVA = ''
+            this.activoVB = 'activar'
+            this.activoVC = ''
         },
         vertienteC(){
             this.infoVertiente.vertiente = 'C'
             this.infoVertiente.mensaje = 'Recursos Financieros Vertiente'
+            this.activoVB = ''
+            this.activoVA = ''
+            this.activoVC = 'activar'
+
         },
         general(){
             this.infoVertiente.mensaje = 'Recursos Financieros Generales'
             this.infoVertiente.vertiente = ''
+            this.showVertientes = false
 
         },
         resumen(){
@@ -80,5 +105,11 @@ export default {
     }
     .menu-captura-informacion-vertientes p:hover{
         text-decoration:underline;
+    }
+    .activar{
+        color: #392f5c;
+        font-weight: bold;
+        text-transform:uppercase;
+        border-bottom:3px solid #392f5c;
     }
 </style>

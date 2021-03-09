@@ -2,7 +2,6 @@
     <div class="recurso-financiero">
         <div class="agregar-informacion">
             <div class="contenido-agregar-informacion">
-                <p class="titulo-contenido-agregar-informacion">{{sectionTitle.mensaje}} <span> {{ sectionTitle.vertiente}}</span></p>
                 <div class="formulario-contenido-agregar-informacion">
                     <form @submit.prevent="calculo(accion.recursoHumano,accion.recursoFinanciero)" id="formulario-info">
                         <label for="accion">Acción</label>
@@ -13,16 +12,17 @@
                         <input type="number" id="recursoMaterial" v-model.number="accion.recursoFinanciero">
                         <button :disabled="btnDisabled">Agregar</button>
                     </form>
-                    <p :class="mensajeAlerta" v-if="alertaValidacion">{{alertaTexto}}</p>
-                    <div class="total-info" v-if='false'>
-                        <h2>{{totalParcial}}</h2>
-                        <button>Guardar</button> 
+                    <div class="total-info">
+                        <h2 v-if="mostrarTotal"><span>Total: </span>$ {{totalParcial}} </h2>
+                        <button v-if="btnGuardar" @click="guardarAcciones" class="btnGuardarAccion">Guardar Acciones</button> 
                     </div>
+                    <p :class="mensajeAlerta" v-if="alertaValidacion">{{alertaTexto}}</p>
                 </div>
             </div>
         </div>
         <div class="mostrar-informacion">
             <div class="contenido-mostrar-informacion">
+                <p class="titulo-contenido-agregar-informacion">{{sectionTitle.mensaje}} <span> {{ sectionTitle.vertiente}}</span></p>
                <table class="info-general-table">
                    <thead>
                        <tr>
@@ -60,6 +60,7 @@ export default {
         return {
             btnDisabled: false,
             alertaValidacion: false,
+            btnGuardar: false,
             mensajeAlerta:'',
             alertaTexto: '',
             mensajeTitulo: 'Recurso Financiero Vertiente A',
@@ -69,11 +70,16 @@ export default {
                 recursoFinanciero: '',
                 totalRecurso:''
             },
-            totalParcial:'',
+            totalParcial:0,
             totalAccion:[],
             totalVertienteA:[],
             totalVertienteB:[],
-            totalVertienteC:[]
+            totalVertienteC:[],
+            saveVA:null,
+            saveVB:null,
+            saveVC:null,
+            mostrarTotal: false
+
         }
     }, 
     methods:{
@@ -84,22 +90,28 @@ export default {
                 return
             }
             this.accion.totalRecurso = parseInt(humano) + parseInt(financiero);
-            this.totalParciall = 0
-            this.totalParcial = this.totalParcial += this.accion.totalRecurso
+
             const accion = { 
                 accion: this.accion.accion,
                 humano: String(this.accion.recursoHumano),
                 financiero: String(this.accion.recursoFinanciero),
                 totalRecurso: String(this.accion.totalRecurso)
             }
+
+            this.totalParcial = this.totalParcial + this.accion.totalRecurso
+            this.btnGuardar = true;
+
+            this.mostrarTotal = true
+
             this.seleccionarVertiente(accion)
             this.alertaTag(true,'alertaSuccess','¡Acción agregada!')
+            
         },
         alertaTag(validacion,estilo,texto){
             this.alertaValidacion = validacion
             this.mensajeAlerta = estilo
             this.alertaTexto = texto
-             setTimeout(() => {
+            setTimeout(() => {
                     this.alertaValidacion = false
                 }, 2000);
         },
@@ -107,13 +119,15 @@ export default {
             const vertiente = this.sectionTitle.vertiente;
             if(vertiente === 'A'){
                 this.totalVertienteA.push(accion)
-                this.totalAccion.push(accion)
+                this.totalAccion = this.totalVertienteA
             }else if(vertiente === 'B'){
-                this.totalVertienteB.push(accion);
-                this.totalAccion.push(accion)
+                this.totalAccion = []
+               this.totalVertienteB.push(accion)
+               this.totalAccion = this.totalVertienteB
             }else if(vertiente === 'C'){
-                this.totalVertienteC.push(accion);
-                this.totalAccion.push(accion)
+                this.totalAccion = []
+                this.totalVertienteC.push(accion) 
+                this.totalAccion = this.totalVertienteC
             }
             this.limpiarFormulario()
 
@@ -126,12 +140,34 @@ export default {
         },
         editarAccion(){
             console.log('editar acción')
-            console.log(this.totalVertienteA)
-            console.log(this.totalVertienteB)
-            console.log(this.totalVertienteC)
         },
         eliminarAccion(){
             console.log('eliminar acción')
+        },
+        guardarAcciones(){
+            const vertiente = this.sectionTitle.vertiente
+            if(vertiente === 'A'){
+                this.saveVA = this.totalParcial;
+                this.totalAccion = []
+                this.totalParcial = 0
+                console.log(this.totalVertienteA)
+                console.log(this.saveVA)
+            }else if( vertiente === 'B'){
+                this.saveVB = this.totalParcial;
+                this.totalAccion = []
+                this.totalParcial = 0
+                console.log(this.totalVertienteB)
+                console.log(this.saveVB)
+            }else if( vertiente === 'C'){
+                this.saveVC = this.totalParcial;
+                this.totalAccion = []
+                this.totalParcial = 0
+                console.log(this.totalVertienteC)
+                console.log(this.saveVC)
+            }
+        },
+        test(){
+            this.$emit('')
         }
     }
 }
@@ -174,6 +210,7 @@ export default {
     .titulo-contenido-agregar-informacion{
         font-size:18px;
         font-weight: bold;
+        padding:10px 12px;
     }
     .formulario-contenido-agregar-informacion form{
         display:flex; flex-direction: column;
@@ -196,7 +233,11 @@ export default {
         height:30px;
         border:none;
         text-transform:uppercase;
-        background-color:#2FDFF6;
+        cursor:pointer;
+    }
+    button:hover{
+        font-weight: bold;
+        border:1px solid black;
     }
     button:disabled,button[disabled]{
         background-color:#ECECEC;
@@ -233,7 +274,13 @@ export default {
         margin:10px auto;
         padding:10px 15px;
     }
-
+    .total-info{
+        width:100%;
+        text-align:center;
+    }
+    .btnGuardarAccion{
+        background-color: none;
+    }
     
    
 
